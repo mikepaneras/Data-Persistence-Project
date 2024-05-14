@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Build.Content;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    [SerializeField] Text highScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -37,6 +39,11 @@ public class MainManager : MonoBehaviour
             }
         }
     }
+    private void Awake()
+    {
+        highScoreText.text = ScoreManager.Instance.BestScore();
+        ScoreText.text = ScoreManager.Instance.activeUser + $": Score : 0";
+    }
 
     private void Update()
     {
@@ -60,16 +67,22 @@ public class MainManager : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
+       // MenuManager.Instance.CheckHighScore(m_Points, highScoreText);
     }
 
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = ScoreManager.Instance.activeUser + $": Score : {m_Points}";
+    }
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene("Menu");
     }
 
     public void GameOver()
     {
+        ScoreManager.Instance.UpdateLeaderboard(m_Points);
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
